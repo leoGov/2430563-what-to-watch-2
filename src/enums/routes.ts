@@ -22,3 +22,8 @@ export enum AppRoutes {
     Awesome = 'Awesome'
   }
   
+  export enum APIRoute {
+    Films = '/films',
+    FilmPromo = '/promo'
+  }
+  
