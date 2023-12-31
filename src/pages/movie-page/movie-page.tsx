@@ -1,114 +1,98 @@
-import React from 'react';
-import {Link, useParams} from 'react-router-dom';
-import Footer from '../../components/footer/footer';
-import Header from '../../components/header/header';
-import NotFound from '../not-found/not-found.tsx';
-import FilmList from '../../components/film-list/film-list.tsx';
-import {AppRoutes, AuthorizationStatus, FilmsRoutes} from '../../enums/routes.ts';
-import MoviePageDetails from './movie-page-details/movie-page-details.tsx';
-import MoviePageOverview from './movie-page-overview/movie-page-overview.tsx';
-import MoviePageReviews from './movie-page-reviews/movie-page-reviews.tsx';
-import {getActiveClass} from '../../services/utils.ts';
-import {useAppSelector, useFetchFilm} from '../../hooks';
-import {FILM_NAV_ITEM_ACTIVE} from '../../const';
-import BtnMyList from '../../components/btn-my-list/btn-my-list.tsx';
+import React, {SyntheticEvent, useEffect, useRef, useState} from 'react';
+import {useAppSelector} from '../../hooks';
+import {FilmDetails} from '../../types';
+import {useLoadFilmPlayer} from '../../hooks/filmPlayer.ts';
 import LoadingSpinner from '../../components/loading-spinner/loading-spinner.tsx';
+import {TIMEOUT_SEC} from '../../const';
+import {Link} from 'react-router-dom';
+import {AppRoutes} from '../../enums/routes.ts';
+import {formatDuration} from '../../services/utils.ts';
 
-export default function MoviePage(): React.JSX.Element {
-  const {id = ''} = useParams();
+export default function Player(): React.JSX.Element {
+  const film: FilmDetails | null = useAppSelector((state) => state.FILM.filmById);
+  const [timeout, setModalTimeout] = useState<ReturnType<typeof setTimeout>>();
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [timeLeft, setTimeLeft] = useState(videoRef.current?.duration ?? 0);
+  const [progress, setProgress] = useState(0);
 
-  useFetchFilm(id);
-  const paramsFilm = useParams();
+  useLoadFilmPlayer();
 
-  const film = useAppSelector((state) => state.FILM.filmById);
-  const comments = useAppSelector((state) => state.FILMS.commentsFilmById);
-  const favoriteFilms = useAppSelector((state) => state.FILMS.favoriteFilms);
-  const similarFilms = useAppSelector((state) => state.FILMS.similarFilmById);
-  const isAuth = useAppSelector((state) => state.USER.authorizationStatus);
+  const updateTimeLeft = (event: SyntheticEvent<HTMLVideoElement, Event>) => {
+    setTimeLeft(event.currentTarget.duration - event.currentTarget.currentTime);
+    setProgress(event.currentTarget.currentTime / event.currentTarget.duration * 100);
+  };
+
+  useEffect(() => () => clearTimeout(timeout), [timeout]);
+
+  useEffect(() => {
+    if (videoRef.current?.paused === isPlaying) {
+      setIsPlaying(!isPlaying);
+    }
+  }, [videoRef.current?.paused, isPlaying]);
+
+  const handleMouseEnter = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    setModalTimeout(setTimeout(() => {
+      videoRef.current?.play();
+      setIsPlaying(true);
+    }, TIMEOUT_SEC));
+  };
+
+  const handlePlayIconClick = () => {
+    if (isPlaying) {
+      videoRef.current?.pause();
+    } else {
+      videoRef.current?.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleFullscreenIconClick = () => {
+    videoRef.current?.requestFullscreen();
+  };
 
   if(!film) {
     return <LoadingSpinner/>;
   }
 
-  const renderTabs = (tabName: string | undefined): JSX.Element => {
-    switch(tabName) {
-      case FilmsRoutes.Overview:
-        return <MoviePageOverview film={film}/> ;
-      case FilmsRoutes.Details:
-        return <MoviePageDetails film={film}/>;
-      case FilmsRoutes.Reviews:
-        return <MoviePageReviews reviewsFilm={comments}/>;
-      default:
-        return <MoviePageOverview film={film}/>;
-    }
-  };
-
-  return film ? (
-    <>
-      <section className="film-card film-card--full" style={{backgroundColor: film.backgroundColor}}>
-        <div className="film-card__hero">
-          <div className="film-card__bg">
-            <img
-              src={film.backgroundImage}
-              alt={film.name}
-            />
+  return (
+    <div className="player" onMouseEnter={handleMouseEnter}>
+      <video
+        ref={videoRef}
+        src={film.videoLink}
+        className="player__video"
+        poster={film.backgroundImage}
+        onTimeUpdate={(event) => updateTimeLeft(event)}
+      >
+      </video>
+      <Link to={AppRoutes.Film.replace(':id', film.id)} className="player__exit">Exit</Link>
+      <div className="player__controls">
+        <div className="player__controls-row">
+          <div className="player__time">
+            <progress className="player__progress" value={progress} max={100}></progress>
+            <div className="player__toggler" style={{ left: `${progress}%` }}>Toggler</div>
           </div>
-          <h1 className="visually-hidden">WTW</h1>
-          <Header/>
-          <div className="film-card__wrap">
-            <div className="film-card__desc">
-              <h2 className="film-card__title">{film.name}</h2>
-              <p className="film-card__meta">
-                <span className="film-card__genre">{film.genre}</span>
-                <span className="film-card__year">{film.released}</span>
-              </p>
-              <div className="film-card__buttons">
-                <BtnMyList filmId={film.id} amountFilms={favoriteFilms.length} isFavorite={film.isFavorite}/>
-                {
-                  isAuth === AuthorizationStatus.Auth ? (
-                    <Link to={AppRoutes.AddReview.replace(':id', film.id) } className="btn film-card__button">Add review</Link>
-                  ) : null
-                }
-              </div>
-            </div>
-          </div>
+          <div className="player__time-value">{formatDuration(timeLeft)}</div>
         </div>
-        <div className="film-card__wrap film-card__translate-top">
-          <div className="film-card__info">
-            <div className="film-card__poster film-card__poster--big">
-              <img
-                src={film.posterImage}
-                alt={film.name}
-                width={218}
-                height={327}
-              />
-            </div>
-            <div className="film-card__desc">
-              <nav className="film-nav film-card__nav">
-                <ul className="film-nav__list">
-                  <li className={`film-nav__item ${getActiveClass(paramsFilm.info, FilmsRoutes.Overview, FILM_NAV_ITEM_ACTIVE)}`}>
-                    <Link to={AppRoutes.Film.replace(':id', film.id).replace(':info', FilmsRoutes.Overview)} className="film-nav__link">Overview</Link>
-                  </li>
-                  <li className={`film-nav__item ${getActiveClass(paramsFilm.info, FilmsRoutes.Details, FILM_NAV_ITEM_ACTIVE)}`}>
-                    <Link to={AppRoutes.Film.replace(':id', film.id).replace(':info', FilmsRoutes.Details)} className="film-nav__link">Details</Link>
-                  </li>
-                  <li className={`film-nav__item ${getActiveClass(paramsFilm.info, FilmsRoutes.Reviews, FILM_NAV_ITEM_ACTIVE)}`}>
-                    <Link to={AppRoutes.Film.replace(':id', film.id).replace(':info', FilmsRoutes.Reviews)} className="film-nav__link">Reviews</Link>
-                  </li>
-                </ul>
-              </nav>
-              {renderTabs(paramsFilm.info)}
-            </div>
-          </div>
+        <div className="player__controls-row">
+          <button type="button" className="player__play" onClick={handlePlayIconClick}>
+            <svg viewBox="0 0 19 19" width={19} height={19}>
+              <use xlinkHref={isPlaying ? '#pause' : '#play-s'}></use>
+            </svg>
+            <span>{isPlaying ? 'Pause' : 'Play'}</span>
+          </button>
+          <div className="player__name">{film.name}</div>
+          <button type="button" className="player__full-screen" onClick={handleFullscreenIconClick}>
+            <svg viewBox="0 0 27 27" width={27} height={27}>
+              <use xlinkHref="#full-screen"></use>
+            </svg>
+            <span>Full screen</span>
+          </button>
         </div>
-      </section>
-      <div className="page-content">
-        <section className="catalog catalog--like-this">
-          <h2 className="catalog__title">More like this</h2>
-          <FilmList filmsData={similarFilms} maxCards={4} />
-        </section>
-        <Footer></Footer>
       </div>
-    </>
-  ) : <NotFound/>;
+    </div>
+  );
 }

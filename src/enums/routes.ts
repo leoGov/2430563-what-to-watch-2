@@ -44,3 +44,8 @@ export enum AppRoutes {
     User = 'USER',
   }
   
+  export const enum Time {
+    MinuteSeconds = 60,
+    HourSeconds = 3600,
+  }
+  
