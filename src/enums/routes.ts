@@ -38,3 +38,9 @@ export enum AppRoutes {
     Unknown = 'UNKNOWN',
   }
   
+  export enum NameSpace {
+    Films = 'FILMS',
+    Film = 'FILM',
+    User = 'USER',
+  }
+  
