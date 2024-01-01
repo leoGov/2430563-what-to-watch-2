@@ -1,5 +1,5 @@
-import {FilmDetails, FilmPreview, ReviewFilm} from '../../types/index.ts';
-import {ALL_GENRES} from '../../const/index.ts';
+import {FilmDetails, FilmPreview, ReviewFilm} from '../../types';
+import {ALL_GENRES} from '../../const';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {NameSpace} from '../../enums/routes.ts';
 import {
@@ -25,14 +25,14 @@ type InitialState = {
 }
 
 const initialState: InitialState = {
-  genre: ALL_GENRES, //ok
-  films: [], //ok
-  sortedFilmsByGenre: [], //ok
-  isLoadFilms: false, //ok
-  favoriteFilms: [], //ok
-  isFavoriteFilms: [], //ok
-  commentsFilmById: [], //ok
-  similarFilmById: [], //ok
+  genre: ALL_GENRES,
+  films: [],
+  sortedFilmsByGenre: [],
+  isLoadFilms: false,
+  favoriteFilms: [],
+  isFavoriteFilms: [],
+  commentsFilmById: [],
+  similarFilmById: [],
 };
 
 export const films = createSlice({
