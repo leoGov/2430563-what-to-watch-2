@@ -2,8 +2,8 @@ export enum AppRoutes {
     Main = '/',
     SignIn = '/login',
     MyList = '/mylist',
-    Film = '/film/:id/:info',
-    AddReview = '/films/:id/review',
+    Film = '/films/:id',
+    Review = '/films/:id/review',
     Player = '/player/:id',
     NotFound = '*'
   }
@@ -18,7 +18,7 @@ export enum AppRoutes {
     Bad = 'Bad',
     Normal = 'Normal',
     Good = 'Good',
-    VeryGood = 'Very Good',
+    VeryGood = 'Very good',
     Awesome = 'Awesome'
   }
   
@@ -42,10 +42,5 @@ export enum AppRoutes {
     Films = 'FILMS',
     Film = 'FILM',
     User = 'USER',
-  }
-  
-  export const enum Time {
-    MinuteSeconds = 60,
-    HourSeconds = 3600,
   }
   

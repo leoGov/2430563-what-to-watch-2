@@ -25,7 +25,7 @@ export interface BreadcrumbsFilm {
     director: string;
     starring: string[];
     rating: number;
-    scoreCount: number;
+    scoresCount: number;
     runTime: number;
     isFavorite: boolean;
   }
