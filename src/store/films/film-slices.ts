@@ -1,5 +1,5 @@
-import {FilmDetails, FilmPreview, ReviewFilm} from '../../types';
-import {ALL_GENRES} from '../../const';
+import {FilmDetails, FilmPreview, ReviewFilm} from '../../types/index.ts';
+import {ALL_GENRES} from '../../const/index.ts';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {NameSpace} from '../../enums/routes.ts';
 import {

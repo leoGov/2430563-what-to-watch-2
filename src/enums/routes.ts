@@ -2,27 +2,27 @@ export enum AppRoutes {
     Main = '/',
     SignIn = '/login',
     MyList = '/mylist',
-    Film = '/film/:id/:info',
-    AddReview = '/films/:id/review',
+    Film = '/films/:id',
+    Review = '/films/:id/review',
     Player = '/player/:id',
     NotFound = '*'
   }
-  
-  export enum FilmsRoutes {
+
+export enum FilmsRoutes {
     Overview = 'overview',
     Details = 'details',
     Reviews = 'reviews'
   }
-  
-  export enum RatingFilm {
+
+export enum RatingFilm {
     Bad = 'Bad',
     Normal = 'Normal',
     Good = 'Good',
-    VeryGood = 'Very Good',
+    VeryGood = 'Very good',
     Awesome = 'Awesome'
   }
-  
-  export enum APIRoute {
+
+export enum APIRoute {
     Films = '/films',
     FilmPromo = '/promo',
     FilmFavorite = '/favorite',
@@ -31,21 +31,15 @@ export enum AppRoutes {
     Login = '/login',
     Logout = '/logout'
   }
-  
-  export enum AuthorizationStatus {
+
+export enum AuthorizationStatus {
     Auth = 'AUTH',
     NoAuth = 'NO_AUTH',
     Unknown = 'UNKNOWN',
   }
-  
-  export enum NameSpace {
+
+export enum NameSpace {
     Films = 'FILMS',
     Film = 'FILM',
     User = 'USER',
   }
-  
-  export const enum Time {
-    MinuteSeconds = 60,
-    HourSeconds = 3600,
-  }
-  
